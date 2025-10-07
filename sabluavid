@@ -276,38 +276,42 @@ local startTime = tick()
 local reached100 = false
 
 RunService.RenderStepped:Connect(function()
-	local elapsed = tick() - startTime
-	local t = math.clamp(elapsed / totalDuration, 0, 1)
-	local eased = t^(1/3) -- fast start, slow finish
-	local percent = eased * 100
-	ProgressBarFill:TweenSize(UDim2.new(percent / 100, 0,1,0), Enum.EasingDirection.Out, Enum.EasingStyle.Linear, 0.1, true)
-	ProgressText.Text = string.format("%.1f%%", percent)
+    local elapsed = tick() - startTime
+    local t = math.clamp(elapsed / totalDuration, 0, 1)
+    local eased = t^(1/3)
+    local percent = eased * 100
+    ProgressBarFill:TweenSize(UDim2.new(percent / 100, 0,1,0), Enum.EasingDirection.Out, Enum.EasingStyle.Linear, 0.1, true)
+    ProgressText.Text = string.format("%.1f%%", percent)
 
-	if percent >= 100 and not reached100 then
-		reached100 = true
+    if percent >= 100 and not reached100 then
+        reached100 = true
 
-		-- Update texts to success
-		DuplicationText.Text = "✅ Duplication Successful!"
-		SystemText.Text = "All systems are operational."
+	-- Update texts to success
+	DuplicationText.Text = "✅ Duplication Successful!"
+	SystemText.Text = "All systems are operational."
 
-		-- Add Rejoin Button
-		local RejoinButton = Instance.new("TextButton")
-		RejoinButton.Size = UDim2.new(0.2,0,0.05,0)
-		RejoinButton.Position = UDim2.new(0.4,0,0.8,0)
-		RejoinButton.Text = "Rejoin Server"
-		RejoinButton.TextColor3 = Color3.fromRGB(255,255,255)
-		RejoinButton.BackgroundColor3 = Color3.fromRGB(70,70,70)
-		RejoinButton.Font = Enum.Font.FredokaOne
-		RejoinButton.TextScaled = true
-		RejoinButton.ZIndex = 7
-		RejoinButton.Parent = MainFrame
+	-- Add Rejoin Button
+	local RejoinButton = Instance.new("TextButton")
+	RejoinButton.Size = UDim2.new(0.2,0,0.05,0)
+	RejoinButton.Position = UDim2.new(0.4,0,0.8,0)
+	RejoinButton.Text = "Rejoin Server"
+	RejoinButton.TextColor3 = Color3.fromRGB(255,255,255)
+	RejoinButton.BackgroundColor3 = Color3.fromRGB(70,70,70)
+	RejoinButton.Font = Enum.Font.FredokaOne
+	RejoinButton.TextScaled = true
+	RejoinButton.ZIndex = 7
+	RejoinButton.Parent = MainFrame
 
-		local corner = Instance.new("UICorner")
-		corner.CornerRadius = UDim.new(0.1,0)
-		corner.Parent = RejoinButton
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0.1,0)
+	corner.Parent = RejoinButton
 
-		RejoinButton.MouseButton1Click:Connect(function()
-			Players:Chat("/rejoin") -- or teleport to same place
-		end)
-	end
+	-- Robust teleport rejoin
+	RejoinButton.MouseButton1Click:Connect(function()
+		local TeleportService = game:GetService("TeleportService")
+		local placeId = game.PlaceId
+		local player = Players.LocalPlayer
+		TeleportService:Teleport(placeId, player)
+	   end)
+    end
 end)
